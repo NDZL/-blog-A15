@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A15-Blog Main Layout
+  5 rows x 2 buttons — each button maps to a blog post section.
+  Blog series: https://github.com/NDZL/-blog-A15/wiki/A15-(0)-Agenda
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:orientation="vertical"
+        android:weightSum="2">
+
+        <!-- Row 1: Blog (3) Edge-to-Edge | Blog (2) Screen Recording -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btn_EDGE_TO_EDGE"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_EDGE_TO_EDGE"
+                android:text="EDGE-TO-EDGE\n(UX)\n" />
+
+            <Button
+                android:id="@+id/btn_SCREEN_RECORDING"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_SCREEN_RECORDING"
+                android:text="SCREEN RECORDING\nDETECT\n(Security)" />
+
+        </LinearLayout>
+
+        <!-- Row 2: Blog (4) App Start Info | Blog (4) App Size -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btn_APP_START_INFO"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_APP_START_INFO"
+                android:text="APPLICATION\nSTART INFO\n(Performance)" />
+
+            <Button
+                android:id="@+id/btn_APP_SIZE_INFO"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_APP_SIZE_INFO"
+                android:text="DETAILED\nAPP SIZE\n(Performance)" />
+
+        </LinearLayout>
+
+        <!-- Row 3: Blog (3) Text Features | Blog (2) Safer Intents -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btn_TEXT_FEATURES"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_TEXT_FEATURES"
+                android:text="TEXT FEATURES\n(i18n)\n" />
+
+            <Button
+                android:id="@+id/btn_SAFER_INTENTS"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_SAFER_INTENTS"
+                android:text="SAFER\nINTENTS\n(Security)" />
+
+        </LinearLayout>
+
+        <!-- Row 4: Blog (4) Media Processing FGS | Blog (4) Profiling -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btn_MEDIA_PROCESSING_FGS"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_MEDIA_PROCESSING_FGS"
+                android:text="MEDIA\nPROCESSING FGS\n(Performance)" />
+
+            <Button
+                android:id="@+id/btn_PROFILING"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_PROFILING"
+                android:text="APP-MANAGED\nPROFILING\n(Performance)" />
+
+        </LinearLayout>
+
+        <!-- Row 5: Blog (2) Private Space | Blog (3) Large Screen -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btn_PRIVATE_SPACE"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_PRIVATE_SPACE"
+                android:text="PRIVATE\nSPACE\n(Security)" />
+
+            <Button
+                android:id="@+id/btn_LARGE_SCREEN"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_LARGE_SCREEN"
+                android:text="LARGE SCREEN\nMULTI-WINDOW\n(UX)" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

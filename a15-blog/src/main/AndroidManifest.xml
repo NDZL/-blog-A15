@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A15-Blog Manifest
+  Blog series: https://github.com/NDZL/-blog-A15/wiki/A15-(0)-Agenda
+
+  Permissions declared here map to specific blog posts:
+    DETECT_SCREEN_RECORDING  -> Blog (2): Security & Privacy Controls
+    FOREGROUND_SERVICE*      -> Blog (4): Performance & Background Behavior
+    POST_NOTIFICATIONS       -> Blog (4): required for FGS notification on API 33+
+    PACKAGE_USAGE_STATS      -> Blog (4): Detailed App Size via StorageStatsManager
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Blog (2): Screen Recording Detection requires this permission -->
+    <uses-permission android:name="android.permission.DETECT_SCREEN_RECORDING" />
+
+    <!-- Blog (4): Media Processing Foreground Service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING" />
+
+    <!-- Blog (4): Needed to post FGS notification on API 33+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Blog (4): Detailed App Size — StorageStatsManager.queryStatsForPackage() -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="false"
+        android:theme="@style/Theme.AppCompat">
+
+        <!-- Main launcher activity — grid of blog-feature demo buttons -->
+        <activity
+            android:name=".A15BlogMainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Blog (3): Text / i18n features activity -->
+        <activity
+            android:name=".TextFeaturesActivity"
+            android:exported="false" />
+
+        <!--
+          Blog (2): Safer Intents target activity.
+          In API 35, intents must match the declared intent-filter accurately.
+          An intent without an action will NO LONGER match any filter.
+        -->
+        <activity
+            android:name=".SaferIntentsTargetActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.ndzl.a15_blog.SAFER_INTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          Blog (4): Media Processing Foreground Service.
+          New FGS type in API 35 with a 6-hour cumulative timeout per 24h window.
+          Boot storm prevention: this type CANNOT be started from BOOT_COMPLETED receivers.
+        -->
+        <service
+            android:name=".MediaProcessingFGS"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaProcessing" />
+
+    </application>
+
+</manifest>

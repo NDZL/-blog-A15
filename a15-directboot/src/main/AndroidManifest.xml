@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Required to start a Foreground Service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- A15: you must declare the specific FGS type permission -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Required to receive BOOT_COMPLETED and LOCKED_BOOT_COMPLETED -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Post notifications (required on API 33+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Required for ConnectivityManager network state queries -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
+        tools:targetApi="35">
+
+        <!-- ============================================================
+             MAIN ACTIVITY — NOT direct boot aware.
+             Only launchable after the user has unlocked the device.
+             ============================================================ -->
+        <activity
+            android:name=".DirectBootActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ============================================================
+             BOOT RECEIVER — Direct Boot Aware
+             directBootAware="true" means this component runs in DE storage
+             context and can receive LOCKED_BOOT_COMPLETED (before unlock)
+             as well as BOOT_COMPLETED (after unlock).
+             ============================================================ -->
+        <receiver
+            android:name=".BootReceiver"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <!-- Fires BEFORE user enters PIN/password -->
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <!-- Fires AFTER user enters PIN/password -->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ============================================================
+             FOREGROUND SERVICE — Direct Boot Aware
+             Using specialUse FGS type because A15 restricts many FGS types
+             (dataSync, camera, mediaPlayback, location, etc.) from starting
+             at BOOT_COMPLETED. specialUse is NOT restricted.
+             ============================================================ -->
+        <service
+            android:name=".DirectBootForegroundService"
+            android:directBootAware="true"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Direct Boot enterprise monitoring — runs before and after device unlock to track device state transitions" />
+        </service>
+
+    </application>
+
+</manifest>

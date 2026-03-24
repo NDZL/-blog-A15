@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">A15 Direct Boot</string>
+    <string name="channel_name">Direct Boot Service</string>
+    <string name="channel_description">Notifications for the Direct Boot foreground service</string>
+</resources>
