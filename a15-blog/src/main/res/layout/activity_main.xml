@@ -112,6 +112,43 @@
 
         </LinearLayout>
 
+        <!--
+          Blog (2): TLS Version Results Panel
+          Populated by onClickbtn_TLS_VERSION() on a background thread.
+          (A) Lists platform-default protocols from SSLContext.getDefault()
+          (B) Shows ✅/❌ per version after a live handshake to google.com:443
+          Key Android 15 change: TLS 1.0 and 1.1 are completely removed from
+          Conscrypt — setting enabledProtocols to either throws IllegalArgumentException
+          before a TCP connection is even opened.
+        -->
+        <LinearLayout
+            android:id="@+id/tls_results_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="6dp"
+            android:background="#EEEEFF"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dp"
+                android:text="🔒 TLS Version Probe (Android 15 Network Security)"
+                android:textColor="#0000CC"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_tls_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="Tap 'TLS VERSION CHECK' button below to probe…"
+                android:textColor="#333333"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
         <!-- Row 1: Blog (3) Edge-to-Edge | Blog (2) Screen Recording -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -269,6 +306,34 @@
                 android:layout_weight="1"
                 android:onClick="onClickbtn_LARGE_SCREEN"
                 android:text="LARGE SCREEN\nMULTI-WINDOW\n(UX)" />
+
+        </LinearLayout>
+
+        <!-- Row 6: Blog (2) TLS Version Check -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btn_TLS_VERSION"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:onClick="onClickbtn_TLS_VERSION"
+                android:text="TLS VERSION\nCHECK\n(Security)" />
+
+            <!-- Reserved for a future button -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_weight="1" />
 
         </LinearLayout>
 

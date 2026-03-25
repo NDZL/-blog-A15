@@ -24,7 +24,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.net.InetSocketAddress
 import java.util.function.Consumer
+import javax.net.ssl.SSLSocket
+import javax.net.ssl.SSLSocketFactory
 
 /**
  * A15BlogMainActivity — Main entry point for the Android 15 blog companion samples.
@@ -82,6 +85,9 @@ class A15BlogMainActivity : AppCompatActivity() {
     private val REAL_CREDIT_CARD = "4532-1234-5678-9012"
     private val REAL_PIN        = "4-digit: 7391"
 
+    // ── Blog (2): TLS version probe result view ──
+    private lateinit var tvTlsResults: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -92,10 +98,11 @@ class A15BlogMainActivity : AppCompatActivity() {
         ctx = this@A15BlogMainActivity
 
         // Bind sensitive-data panel views
-        tvEmployeeId     = findViewById(R.id.tv_employee_id)
-        tvCreditCard     = findViewById(R.id.tv_credit_card)
-        tvPin            = findViewById(R.id.tv_pin)
+        tvEmployeeId      = findViewById(R.id.tv_employee_id)
+        tvCreditCard      = findViewById(R.id.tv_credit_card)
+        tvPin             = findViewById(R.id.tv_pin)
         tvRecordingStatus = findViewById(R.id.tv_recording_status)
+        tvTlsResults      = findViewById(R.id.tv_tls_results)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -242,6 +249,108 @@ class A15BlogMainActivity : AppCompatActivity() {
             tvPin.text        = REAL_PIN
         }
     }
+
+    // =====================================================================
+    // Blog (2): TLS Version Check — Android 15 Network Security
+    // Wiki: A15‐(2)‐Next‐Generation Security & Privacy Controls
+    //
+    // Android 15 completely removes TLS 1.0 and TLS 1.1 from Conscrypt
+    // (the platform TLS provider). Attempting to force either version via
+    // SSLSocket.enabledProtocols throws IllegalArgumentException upfront —
+    // the connection is rejected BEFORE any bytes hit the wire.
+    //
+    // This demo:
+    //   (A) Reads the platform's default enabled protocols from SSLContext.
+    //   (B) Actively probes TLSv1 / TLSv1.1 / TLSv1.2 / TLSv1.3 against
+    //       google.com:443 and displays ✅/❌ + the reason.
+    //
+    // Runs on a background Thread — network is never allowed on the main thread.
+    // =====================================================================
+    @Suppress("UNUSED_PARAMETER")
+    fun onClickbtn_TLS_VERSION(v: View) {
+        tvTlsResults.text = "⏳ Probing TLS versions… (network thread)"
+        val appTarget = applicationInfo.targetSdkVersion
+        Log.i(TAG, "Blog (2): TLS version probe started. App is targeting API level {$appTarget}")
+
+        Thread {
+            val sb = StringBuilder()
+
+            // ── (A) Platform defaults: what Conscrypt exposes right now ──
+            try {
+                val defaultCtx = javax.net.ssl.SSLContext.getDefault()
+                val protocols  = defaultCtx.defaultSSLParameters.protocols
+                sb.appendLine("Platform default protocols (Conscrypt):")
+                protocols.forEach { sb.appendLine("  · $it") }
+            } catch (e: Exception) {
+                sb.appendLine("Could not query SSLContext defaults: ${e.message}")
+            }
+            sb.appendLine()
+
+            // ── (B) Active handshake probe per version → google.com:443 ──
+            sb.appendLine("Handshake probes → google.com:443")
+            listOf("TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3").forEach { version ->
+                val result = probeTlsVersion(version)
+                val icon   = if (result.success) "✅" else "❌"
+                val detail = if (result.success) "negotiated: ${result.negotiatedProtocol}"
+                             else result.error ?: "failed"
+                sb.appendLine("$icon $version → $detail")
+                Log.i(TAG, "Blog (2): TLS probe [$version] $icon $detail")
+            }
+
+            runOnUiThread { tvTlsResults.text = sb.toString().trimEnd() }
+            Log.i(TAG, "Blog (2): TLS version probe complete")
+        }.start()
+    }
+
+    private data class TlsProbeResult(
+        val requestedVersion: String,
+        val success: Boolean,
+        val negotiatedProtocol: String? = null,
+        val error: String? = null
+    )
+
+    /**
+     * Attempts a TLS handshake to [host]:[port] using ONLY [version] as the
+     * enabled protocol. On Android 15, TLSv1/TLSv1.1 throw
+     * [IllegalArgumentException] immediately (Conscrypt rejects them before
+     * a TCP connection is even established).
+     */
+    private fun probeTlsVersion(
+        version: String,
+        host: String = "cxnt48.com",
+        port: Int = 443
+    ): TlsProbeResult {
+        return try {
+            val factory = SSLSocketFactory.getDefault() as SSLSocketFactory
+            // createSocket() with no args → unconnected; lets us set protocols
+            // BEFORE the handshake takes place.
+            val socket = factory.createSocket() as SSLSocket
+            socket.soTimeout = 5_000
+
+            // ↓ Android 15: throws IllegalArgumentException for TLSv1 / TLSv1.1
+            socket.enabledProtocols = arrayOf(version)
+
+            socket.connect(InetSocketAddress(host, port), 5_000)
+            socket.startHandshake()                      // negotiates the actual version
+
+            val negotiated = socket.session.protocol     // e.g. "TLSv1.3"
+            socket.close()
+            TlsProbeResult(version, true, negotiated)
+
+        } catch (e: IllegalArgumentException) {
+            // Android 15: protocol completely removed from Conscrypt
+            TlsProbeResult(version, false,
+                error = e.message?.take(100) ?: "IllegalArgumentException")
+        } catch (e: javax.net.ssl.SSLHandshakeException) {
+            // Older Android: protocol exists but server refused it
+            TlsProbeResult(version, false,
+                error = e.message?.take(100) ?: "SSLHandshakeException")
+        } catch (e: Exception) {
+            TlsProbeResult(version, false,
+                error = "${e.javaClass.simpleName}: ${e.message?.take(60)}")
+        }
+    }
+
 
 
     // =====================================================================
