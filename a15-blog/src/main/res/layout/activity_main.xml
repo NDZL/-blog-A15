@@ -17,6 +17,101 @@
         android:orientation="vertical"
         android:weightSum="2">
 
+        <!--
+          Blog (2): Sensitive Data Panel
+          This panel is masked automatically when screen recording is detected.
+          The screen recording callback calls maskSensitiveData(true) before
+          the recorder can capture the real values — demonstrating proactive DLP.
+        -->
+        <LinearLayout
+            android:id="@+id/sensitive_data_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="6dp"
+            android:background="#FFEEEE"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dp"
+                android:text="⚠ Sensitive Data — masked on recording"
+                android:textColor="#CC0000"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="1">
+
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingEnd="8dp"
+                        android:text="Employee ID"
+                        android:textColor="#555555" />
+                    <TextView
+                        android:id="@+id/tv_employee_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="EMP-001234"
+                        android:textColor="#111111"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingEnd="8dp"
+                        android:text="Credit Card"
+                        android:textColor="#555555" />
+                    <TextView
+                        android:id="@+id/tv_credit_card"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="4532-1234-5678-9012"
+                        android:textColor="#111111"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingEnd="8dp"
+                        android:text="PIN"
+                        android:textColor="#555555" />
+                    <TextView
+                        android:id="@+id/tv_pin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="4-digit: 7391"
+                        android:textColor="#111111"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </TableRow>
+
+            </TableLayout>
+
+            <TextView
+                android:id="@+id/tv_recording_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="● Recording detection: OFF"
+                android:textColor="#888888"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
         <!-- Row 1: Blog (3) Edge-to-Edge | Blog (2) Screen Recording -->
         <LinearLayout
             android:layout_width="match_parent"

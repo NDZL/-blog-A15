@@ -15,6 +15,7 @@ import android.os.storage.StorageManager
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -70,6 +71,17 @@ class A15BlogMainActivity : AppCompatActivity() {
 
     private var screenRecordingCallback: Consumer<Int>? = null
 
+    // ── Blog (2): Sensitive-data views that will be masked during recording ──
+    private lateinit var tvEmployeeId: TextView
+    private lateinit var tvCreditCard: TextView
+    private lateinit var tvPin: TextView
+    private lateinit var tvRecordingStatus: TextView
+
+    // Original (real) values — kept in memory so they can be restored
+    private val REAL_EMPLOYEE_ID = "EMP-001234"
+    private val REAL_CREDIT_CARD = "4532-1234-5678-9012"
+    private val REAL_PIN        = "4-digit: 7391"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -78,6 +90,12 @@ class A15BlogMainActivity : AppCompatActivity() {
         // We must handle WindowInsets ourselves or UI will be obscured by system bars.
         setContentView(R.layout.activity_main)
         ctx = this@A15BlogMainActivity
+
+        // Bind sensitive-data panel views
+        tvEmployeeId     = findViewById(R.id.tv_employee_id)
+        tvCreditCard     = findViewById(R.id.tv_credit_card)
+        tvPin            = findViewById(R.id.tv_pin)
+        tvRecordingStatus = findViewById(R.id.tv_recording_status)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -162,6 +180,9 @@ class A15BlogMainActivity : AppCompatActivity() {
             // Toggle off — remove the callback
             windowManager.removeScreenRecordingCallback(screenRecordingCallback!!)
             screenRecordingCallback = null
+            maskSensitiveData(false)   // restore real data when detection is off
+            tvRecordingStatus.text = "● Recording detection: OFF"
+            tvRecordingStatus.setTextColor(0xFF888888.toInt())
             Toast.makeText(ctx, "Screen recording detection STOPPED", Toast.LENGTH_SHORT).show()
             Log.i(TAG, "Blog (2): Screen recording callback removed")
             return
@@ -171,22 +192,57 @@ class A15BlogMainActivity : AppCompatActivity() {
         screenRecordingCallback = Consumer { state: Int ->
             val isVisible = state == WindowManager.SCREEN_RECORDING_STATE_VISIBLE
             if (isVisible) {
-                Log.w(TAG, "Blog (2): SCREEN RECORDING DETECTED! App content is being captured.")
+                // ── Mask BEFORE the recorder can capture the real values ──
+                // maskSensitiveData() runs on the main thread so the UI update
+                // is committed prior to the next frame being composited.
                 runOnUiThread {
-                    Toast.makeText(ctx, "Screen recording DETECTED!", Toast.LENGTH_LONG).show()
+                    maskSensitiveData(true)
+                    tvRecordingStatus.text = "🔴 RECORDING — data masked"
+                    tvRecordingStatus.setTextColor(0xFFCC0000.toInt())
+                    Toast.makeText(ctx, "Screen recording DETECTED! Sensitive data masked.", Toast.LENGTH_LONG).show()
                 }
+                Log.w(TAG, "Blog (2): SCREEN RECORDING DETECTED — sensitive data masked")
             } else {
-                Log.i(TAG, "Blog (2): Screen recording stopped")
                 runOnUiThread {
-                    Toast.makeText(ctx, "Screen recording stopped", Toast.LENGTH_SHORT).show()
+                    maskSensitiveData(false)
+                    tvRecordingStatus.text = "🟢 Recording stopped — data restored"
+                    tvRecordingStatus.setTextColor(0xFF007700.toInt())
+                    Toast.makeText(ctx, "Screen recording stopped. Data restored.", Toast.LENGTH_SHORT).show()
                 }
+                Log.i(TAG, "Blog (2): Screen recording stopped — sensitive data restored")
             }
         }
 
         windowManager.addScreenRecordingCallback(mainExecutor, screenRecordingCallback!!)
+        tvRecordingStatus.text = "🟡 Recording detection: ON (watching…)"
+        tvRecordingStatus.setTextColor(0xFF886600.toInt())
         Toast.makeText(ctx, "Screen recording detection STARTED.\nToggle again to stop.", Toast.LENGTH_LONG).show()
         Log.i(TAG, "Blog (2): Screen recording callback registered")
     }
+
+    // =====================================================================
+    // Blog (2): Sensitive-data masking helper
+    //
+    // When [mask] is true, replaces each sensitive field with '●' characters
+    // so that no real value is visible in the recording frame buffer.
+    // When [mask] is false, the original values are restored.
+    //
+    // Alternative (full-screen) approach: window.addFlags(FLAG_SECURE) makes
+    // the *entire* window appear black in recordings — useful when masking
+    // individual views is not feasible.
+    // =====================================================================
+    private fun maskSensitiveData(mask: Boolean) {
+        if (mask) {
+            tvEmployeeId.text = "EMP-●●●●●●"
+            tvCreditCard.text = "●●●●-●●●●-●●●●-9012"   // last 4 kept (common UX pattern)
+            tvPin.text        = "4-digit: ●●●●"
+        } else {
+            tvEmployeeId.text = REAL_EMPLOYEE_ID
+            tvCreditCard.text = REAL_CREDIT_CARD
+            tvPin.text        = REAL_PIN
+        }
+    }
+
 
     // =====================================================================
     // Blog (4): ApplicationStartInfo
