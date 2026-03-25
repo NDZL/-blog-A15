@@ -287,7 +287,7 @@ class A15BlogMainActivity : AppCompatActivity() {
             sb.appendLine()
 
             // ── (B) Active handshake probe per version → google.com:443 ──
-            sb.appendLine("Handshake probes → google.com:443")
+            sb.appendLine("Handshake probes → www.anthropic.com:443")
             listOf("TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3").forEach { version ->
                 val result = probeTlsVersion(version)
                 val icon   = if (result.success) "✅" else "❌"
@@ -317,7 +317,7 @@ class A15BlogMainActivity : AppCompatActivity() {
      */
     private fun probeTlsVersion(
         version: String,
-        host: String = "cxnt48.com",
+        host: String = "www.anthropic.com",
         port: Int = 443
     ): TlsProbeResult {
         return try {
